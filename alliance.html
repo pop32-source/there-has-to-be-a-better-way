@@ -114,14 +114,15 @@
     </div>
     <div class="door">
       <b>Sponsor</b>
-      <p>Put your name on a programme. You are not buying what it concludes. We will tell you plainly which thing is standing and which is still being built.</p>
+      <p>Put your name on a programme, for a stated period. You are not buying what it concludes, and your name goes on the billing — not on the plaque of the thing it happens in.</p>
     </div>
     <div class="door">
       <b>Stand with us</b>
       <p>No money. Add your name to the record, say what you can offer, and be counted. Some of the most useful people in this have given nothing but their name.</p>
     </div>
   </div>
-  <p class="sub center" style="margin-top:30px">All three lead to the same form. It asks which one you mean.</p>
+  <p class="sub center" style="margin-top:30px">All three lead to the same form. It asks which one you mean — and then it asks you that door's questions, not another door's.</p>
+  <p class="sub center" style="margin-top:8px"><em>A gift is recognised. A sponsorship is served. Neither one owns anything.</em></p>
   <a class="cta" href="#the-door">To the form &rarr;</a>
 </section>
 
@@ -155,7 +156,7 @@
         <select id="f-door" required>
           <option value="">— choose one —</option>
           <option value="Donor">Donor — I am giving, not buying</option>
-          <option value="Sponsor">Sponsor — I want to fund a programme (terms not set yet)</option>
+          <option value="Sponsor">Sponsor — I want to fund a programme for a stated period</option>
           <option value="Stand with us">Stand with us — no money, just my name</option>
         </select>
       </div>
@@ -174,9 +175,9 @@
         <input type="email" id="f-write" placeholder="you@example.com" required />
       </div>
 
-      <div class="field">
+      <div class="field" id="field-object" data-when="Donor">
         <label for="f-object">What you want your name on
-          <span class="hint">Pick a thing, or pick the work with no object. Both are real answers.</span>
+          <span class="hint">Pick a thing, or pick the work with no object. Both are real answers. A name goes on a thing when it stands, and not before.</span>
         </label>
         <select id="f-object">
           <option value="The work — no single object">The work — no single object</option>
@@ -189,6 +190,25 @@
           <option value="An innovation shop">An innovation shop</option>
           <option value="Not sure yet — help me choose">Not sure yet — help me choose</option>
         </select>
+      </div>
+
+      <div class="field" id="field-programme" data-when="Sponsor" style="display:none">
+        <label for="f-programme">What work you want to fund
+          <span class="hint">A sponsorship buys billing on a named programme for a stated period. <strong>No programme is open for sponsorship yet</strong> — so today this is an interest note, not an order, and no money is asked for. When a programme opens you will be written to first.</span>
+        </label>
+        <select id="f-programme">
+          <option value="Tell me what exists">Tell me what exists</option>
+          <option value="The campus build">The campus build</option>
+          <option value="A programme not yet named">A programme not yet named</option>
+          <option value="Something else — see my note">Something else — see my note</option>
+        </select>
+      </div>
+
+      <div class="field" id="field-offer" data-when="Stand with us" style="display:none">
+        <label for="f-offer">What you can offer
+          <span class="hint">A skill, an introduction, a room, an hour, a correction we need to hear. No money needed and none asked for.</span>
+        </label>
+        <input type="text" id="f-offer" placeholder="What you have to give" />
       </div>
 
       <div class="field">
@@ -211,9 +231,17 @@
         <input type="checkbox" id="f-ack2" required />
         <span><strong>I understand no receipt is issued yet.</strong> Nothing has been taken from me by sending this.</span>
       </div>
-      <div class="check">
+      <div class="check" id="ack-donor" data-when="Donor">
         <input type="checkbox" id="f-ack3" required />
         <span><strong>I understand a name goes on a thing when it stands</strong>, and that a gift toward a thing not yet built is held, and named the year it stands.</span>
+      </div>
+      <div class="check" id="ack-sponsor" data-when="Sponsor" style="display:none">
+        <input type="checkbox" id="f-ack4" required />
+        <span><strong>I understand a sponsorship buys billing on a named programme for a stated period</strong>, that it ends on its date, that it buys no name on anything that stands, and no say in what the programme concludes.</span>
+      </div>
+      <div class="check" id="ack-stand" data-when="Stand with us" style="display:none">
+        <input type="checkbox" id="f-ack5" required />
+        <span><strong>I understand my name goes on the record as a line, not on a thing</strong>, and that no money is being asked for.</span>
       </div>
 
       <button class="submit" type="submit">Send it — this opens your mail</button>
@@ -237,6 +265,7 @@
   <div class="wrap">
     <div class="eyebrow">The whole of what you get</div>
     <h2>A name on a thing. A line in the <span class="gold">record.</span></h2>
+    <p class="body-p" style="border-left:3px solid var(--gold);padding-left:18px"><strong>This is the donor's half.</strong> A name on a thing is what a gift is recognised with. <em>If you came in as a sponsor, none of this is yours to buy</em> — your name goes on a billing for a stated period, and the plaque of the thing the programme happens in keeps the name it already has. Sponsorships are billed, not named.</p>
     <p class="body-p">A plaque reads three lines. It names the thing — it does not rename it. It does not outlive it.</p>
     <div class="notbox" style="border-left-color:var(--teal)">
       <p style="font-family:var(--fd);color:var(--cream);font-size:clamp(18px,2.2vw,22px);line-height:1.7">[the thing — its real name, unaltered]<br />Given in recognition of a gift from [your name]<br />[year] &middot; gift</p>
@@ -264,33 +293,69 @@
     var name = document.getElementById('f-name').value.trim();
     var write = document.getElementById('f-write').value.trim();
     var obj = document.getElementById('f-object').value;
+    var progEl = document.getElementById('f-programme');
+    var offerEl = document.getElementById('f-offer');
+    var prog = progEl ? progEl.value : "";
+    var offer = offerEl ? offerEl.value.trim() : "";
     var scale = document.getElementById('f-scale').value.trim() || "Not stated";
     var note = document.getElementById('f-note').value.trim() || "(nothing added)";
-    var subject = "[ALLIANCE:" + door.toUpperCase().replace(/[^A-Z]/g,"") + "] Coexistence Alliance — " + door + " — " + name;
+    var code = door === "Donor" ? "DONOR" : (door === "Sponsor" ? "SPONSOR" : "STAND");
+    var subject = "[ALLIANCE:" + code + "] Coexistence Alliance — " + door + " — " + name;
     var body = [
       "THE COEXISTENCE ALLIANCE — INTENT",
       "--------------------------------",
       "",
-      "Door:            " + door,
+      "Door:            " + door + "   (" + code + ")",
       "Name as written: " + name,
-      "Where to write:  " + write,
-      "Wants name on:   " + obj,
-      "Scale:           " + scale,
-      "",
-      "Note:",
-      note,
-      "",
-      "--------------------------------",
-      "ACKNOWLEDGED BY THE SENDER:",
-      "- This is not an investment. No share, seat, vote or claim.",
-      "- No receipt has been issued. Nothing has been taken.",
-      "- A name goes on a thing when it stands; a gift toward a thing",
-      "  not yet built is held and named the year it stands.",
-      "",
-      "SENT FROM THE ALLIANCE PAGE — intention only, no money collected."
-    ].join("\n");
-    return {subject: subject, body: body, href: "mailto:" + TO + "?subject=" + encodeURIComponent(subject) + "&body=" + encodeURIComponent(body)};
+      "Where to write:  " + write
+    ];
+    if (door === "Donor") {
+      body.push("Wants name on:   " + obj);
+      body.push("Plaque:          when the thing stands. Held before then.");
+    } else if (door === "Sponsor") {
+      body.push("Would fund:      " + prog);
+      body.push("NOT buying:      the name of anything that stands; the plaque of");
+      body.push("                 the thing the programme happens in; any say in");
+      body.push("                 what it concludes; any period without an end date.");
+    } else {
+      body.push("Offers:          " + (offer || "(not stated)"));
+      body.push("Money:           none asked for, none offered.");
+    }
+    body.push("Scale:           " + scale);
+    body.push("");
+    body.push("Note:");
+    body.push(note);
+    body.push("");
+    body.push("--------------------------------");
+    body.push("ACKNOWLEDGED BY THE SENDER:");
+    body.push("- This is not an investment. No share, seat, vote or claim.");
+    body.push("- No receipt has been issued. Nothing has been taken.");
+    if (door === "Donor") {
+      body.push("- A name goes on a thing when it stands; a gift toward a thing");
+      body.push("  not yet built is held and named the year it stands.");
+    } else if (door === "Sponsor") {
+      body.push("- A sponsorship buys billing on a named programme for a stated");
+      body.push("  period, and ends on its date. It buys no name on an object and");
+      body.push("  no say in what the programme concludes.");
+    } else {
+      body.push("- My name goes on the record as a line, not on a thing.");
+    }
+    body.push("");
+    body.push("SENT FROM THE ALLIANCE PAGE — intention only, no money collected.");
+    var bodyText = body.join("\n");
+    return {subject: subject, body: bodyText, href: "mailto:" + TO + "?subject=" + encodeURIComponent(subject) + "&body=" + encodeURIComponent(bodyText)};
   }
+
+  var doorSel = document.getElementById('f-door');
+  function syncDoor(){
+    var d = doorSel.value;
+    var els = document.querySelectorAll('[data-when]');
+    for (var i = 0; i < els.length; i++) {
+      els[i].style.display = (els[i].getAttribute('data-when') === d) ? '' : 'none';
+    }
+  }
+  doorSel.addEventListener('change', syncDoor);
+  syncDoor();
 
   form.addEventListener('submit', function(e){
     e.preventDefault();
@@ -303,8 +368,12 @@
       if(!p[1]){ el.style.borderColor = '#e05c5c'; ok = false; }
       else { el.style.borderColor = ''; }
     });
-    ['f-ack1','f-ack2','f-ack3'].forEach(function(id){
+    var needed = {'Donor':['f-ack1','f-ack2','f-ack3'],
+                  'Sponsor':['f-ack1','f-ack2','f-ack4'],
+                  'Stand with us':['f-ack1','f-ack2','f-ack5']}[door] || ['f-ack1','f-ack2'];
+    needed.forEach(function(id){
       var el = document.getElementById(id);
+      if(!el){ return; }
       if(!el.checked){ ok = false; el.parentElement.style.color = '#e05c5c'; }
       else { el.parentElement.style.color = ''; }
     });
